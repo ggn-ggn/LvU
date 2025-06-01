@@ -1,0 +1,129 @@
+<!-- templates/notifications.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消息通知</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .notification-list {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .notification-info span {
+            flex: 1;
+            text-align: center;
+        }
+
+        button {
+            display: inline-block;
+            margin-right: 10px;
+            padding: 10px 15px;
+            color: #fff;
+            background-color: #218838;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        button[disabled] {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        button:hover:not([disabled]) {
+            background-color: #218838;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="notification-list">
+        <h2>消息通知</h2>
+        <ul>
+            {% for notification in notifications %}
+            <li>
+                <span class="notification-info">
+                    <span>{{ notification.message }}</span>
+                    <span>状态: {{ '未读' if not notification.is_read else '已读' }}</span>
+                    <button onclick="markAsReadAndRedirect({{ notification.id }}, '{{ notification.link }}')" {% if notification.is_read %}disabled{% endif %}>查看</button>
+                </span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <a href="{{ url_for('home') }}" class="layui-bg-green">返回首页</a>
+
+    <script>
+        function markAsReadAndRedirect(notificationId, link) {
+            // 发送请求标记为已读
+            fetch('/mark_as_read', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ notification_id: notificationId })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // 跳转到指定的URL
+                    window.location.href = link;
+                } else {
+                    alert('操作失败: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>查看队伍信息</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/layui-v2.6.3/css/layui.css') }}" media="all">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+    <style>
+        .swiper-container {
+            width: 100%;
+            overflow: hidden;  /* 隐藏溢出部分 */
+            height: 350px;
+        }
+
+        .swiper-slide {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .team-info,
+        .members-info,
+        .attractions-info {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .team-info p,
+        .members-info p,
+        .attractions-info p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .member-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .member-info span {
+            flex: 1;
+            text-align: center;
+        }
+
+        .admin-label {
+            font-weight: bold;
+            color: red;
+        }
+
+        .attraction-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .attraction-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .attraction-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+        }
+
+        .attraction-info a {
+            color: #218838;
+            text-decoration: none;
+        }
+
+        .attraction-info a:hover {
+            text-decoration: underline;
+        }
+
+        a {
+            display: inline-block;
+            margin-right: 10px;
+            padding: 10px 15px;
+            color: #218838;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            text-align: center;
+        }
+        button {
+            display: inline-block;
+            margin-right: 10px;
+            padding: 10px 15px;
+            color: #fff;
+            background-color: #218838;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        a:hover {
+            color: #155724;
+        }
+        button:hover {
+            color: #fff;
+            background-color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <div class="layuimini-container">
+        <div class="layuimini-main">
+            <div class="layui-row layui-col-space15">
+                <div class="layui-col-md4">
+                    <div class="layui-card">
+                        <div class="layui-card-header"><h2><strong>队伍信息</strong></h2></div>
+                        <div class="layui-card-body">
+                            <p><strong>目的地:</strong> {{ team.destination }}</p>
+                            <p><strong>出发地点:</strong> {{ team.departure_location }}</p>
+                            <p><strong>出行方式:</strong> {{ team.travel_mode }}</p>
+                            <p><strong>队伍类型:</strong> {{ team.team_type }}</p>
+                            <p><strong>出行时间:</strong> {{ team.travel_time }}</p>
+                            <p><strong>旅游预算:</strong> {{ team.travel_budget }}元</p>
+                            <p><strong>最大人数:</strong> {{ team.max_members }}</p>
+                            <p><strong>当前人数:</strong> {{ team.current_members }}</p>
+                            <p><strong>旅行计划:</strong> <span id="travelPlan">{{ team.travel_plan }}</span></p>
+                            <p><strong>队伍热度:</strong> {{ team.popularity }}</p>
+                        </div>
+                    </div>
+                    <div class="layui-card">
+                        <div class="layui-card-header"><h2><strong>添加旅游景点</strong></h2></div>
+                        <div class="layui-card-body" id="addAttractionForm">
+                            <div style="display: flex; align-items: center;">
+                                <input type="text" style="flex: 1; margin-right: 5%;" id="attractionName" placeholder="输入景点名称">
+                                <button type="button" class="layui-btn layui-bg-green"onclick="addToTravelPlanInput()">添加</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-card" style="height: 156px">
+                        <div class="layui-card-header"><h2><strong>邀请用户</strong></h2></div>
+                        <div class="layui-card-body" id="inviteForm" >
+                            <div style="display: flex; align-items: center;">
+                                <input type="text" style="flex: 1; margin-right: 5%;" id="inviteUsername" placeholder="输入用户名">
+                                <button type="button" class="layui-btn layui-bg-green" onclick="inviteUser()">邀请</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                                     
+                    <div class="layui-card">
+                        <div class="layui-card-header"><h2><strong>管理员信息</strong></h2></div>
+                        <div class="layui-card-body">
+                            <li>
+                                {% for member in approved_members %}
+                                {% if member.id == team.admin_id %}
+                                <span class="member-info">
+                                    <span class="admin-label">(管理员)</span>
+                                    <span>用户名: {{ member.username }}</span>
+                                    <span>手机号: {{ member.phone }}</span>
+                                    <span>性格: {{ member.character }}</span>
+                                    <span>爱好: {{ member.travel_hobby }}</span>
+                                    <span>居住地: {{ member.residence }}</span>
+                                    <span>性别: {{ member.gender }}</span>
+                                </span>
+                                {% endif %}
+                                {% endfor %}
+                            </li>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                                                <div style="text-align: center; ">
+                                                    <a href="{{ url_for('home') }}">回到首页</a>
+                                                </div>
+        </div>
+    </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var swiper = new Swiper('.swiper-container', {
+            loop: true,
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
+            slidesPerView: 1,  // 每次只显示一个slide
+            spaceBetween: 0,   // slide之间的间距
+        });
+    });
+
+    function addToTravelPlan(attractionName) {
+        const teamId = {{ team.id }};
+        fetch('/add_to_travel_plan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ team_id: teamId, attraction_name: attractionName })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('景点已成功添加到旅行计划！');
+                // 更新界面上显示的旅行计划部分
+                const travelPlanElement = document.getElementById('travelPlan');
+                const currentPlan = travelPlanElement.innerText;
+                if (currentPlan.trim() === '') {
+                    travelPlanElement.innerText = attractionName;
+                } else {
+                    travelPlanElement.innerText = `${currentPlan}，${attractionName}`;
+                }
+            } else {
+                alert('操作失败: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+        function inviteUser() {
+            const username = document.getElementById('inviteUsername').value;
+            const teamId = {{ team.id }};
+            if (username) {
+                fetch('/invite_user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username: username, team_id: teamId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('邀请已发送');
+                    } else {
+                        alert('邀请失败: ' + data.message);
+                    }
+                });
+            } else {
+                alert('请输入用户名');
+            }
+        }
+    function addToTravelPlanInput() {
+        const attractionName = document.getElementById('attractionName').value;
+        if (attractionName) {
+            addToTravelPlan(attractionName);
+        } else {
+            alert('请输入景点名称');
+        }
+    }
+</script>
+
+</body>
+</html>
+

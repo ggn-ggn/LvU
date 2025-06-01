@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>驴友辅助系统主页</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+       .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+       .section {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+       .section h2 {
+            margin-top: 0;
+        }
+
+       .section p {
+            line-height: 1.6;
+        }
+
+       .slider {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+        }
+
+       .slides {
+            display: flex;
+            width: 400%;
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
+        }
+
+       .slide {
+            width: 25%;
+            height: 100%;
+        }
+
+       .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+       .navigation {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+        }
+
+       .navigation label {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        input[type="radio"] {
+            display: none;
+        }
+
+        #radio1:checked~.slides {
+            transform: translateX(0);
+        }
+
+        #radio2:checked~.slides {
+            transform: translateX(-25%);
+        }
+
+        #radio3:checked~.slides {
+            transform: translateX(-50%);
+        }
+
+        #radio4:checked~.slides {
+            transform: translateX(-75%);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>驴友辅助系统</h1>
+        <div class="section">
+            <h2>系统功能介绍</h2>
+            <p>
+                欢迎使用驴友辅助系统！本系统精心打造，旨在为广大热爱户外探险的驴友们提供一个高效、便捷且功能丰富的优质平台。在当今快节奏的生活中，越来越多的人渴望走出城市的喧嚣，投身于大自然的怀抱，感受户外的魅力。然而，组织和参与一次成功的户外活动并非易事，需要考虑诸多方面，如行程规划、人员召集、物资准备等。<br>
+                我们的驴友辅助系统正是为了解决这些难题而生。它整合了多种实用功能，从活动的发起与组织，到参与者的招募与管理，再到行程中的各种信息交流与资源共享，全方位助力每一位驴友轻松开启精彩的户外之旅。无论是攀登雄伟的山峰，探寻幽深的峡谷，还是漫步于宁静的森林，亦或是穿越广袤的沙漠，本系统都将成为您不可或缺的得力助手。
+            </p>
+        </div>
+        <div class="slider" style="height: 600px;">
+            <input type="radio" name="radio-btn" id="radio1" checked>
+            <input type="radio" name="radio-btn" id="radio2">
+            <input type="radio" name="radio-btn" id="radio3">
+            <input type="radio" name="radio-btn" id="radio4">
+            <div class="slides">
+                <div class="slide">
+                    <img src="../../static/images/image1.png" alt="Image 1">
+                </div>
+                <div class="slide">
+                    <img src="../../static/images/image2.png" alt="Image 2">
+                </div>
+                <div class="slide">
+                    <img src="../../static/images/image3.png" alt="Image 3">
+                </div>
+                <div class="slide">
+                    <img src="../../static/images/image4.png" alt="Image 4">
+                </div>
+            </div>
+            <div class="navigation">
+                <label for="radio1"></label>
+                <label for="radio2"></label>
+                <label for="radio3"></label>
+                <label for="radio4"></label>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
