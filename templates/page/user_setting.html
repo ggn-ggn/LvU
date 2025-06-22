@@ -1,116 +1,187 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>用户设置</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='lib/layui-v2.6.3/css/layui.css') }}" media="all">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/layuimini.css') }}?v=2.0.4.2" media="all">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/themes/default.css') }}" media="all">
-    <link rel="stylesheet" href="{{ url_for('static', filename='lib/font-awesome-4.7.0/css/font-awesome.min.css') }}" media="all">
-    <style>
-        .layui-form-item .layui-input-company {
-            width: auto;
-            padding-right: 10px;
-            line-height: 38px;
+    <title>用户设置 - 驴友辅助系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E9FFF',
+                        secondary: '#36CFC9',
+                        accent: '#FF7D00',
+                        success: '#00B42A',
+                        danger: '#F53F3F',
+                        pending: '#86909C',
+                        dark: '#333333',
+                        light: '#F5F7FA'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 4px 12px rgba(0, 0, 0, 0.08)',
+                        'card-hover': '0 8px 20px rgba(0, 0, 0, 0.12)',
+                    }
+                },
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .transition-custom {
+                transition: all 0.3s ease;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-4 py-2 rounded-lg text-sm transition-custom hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50;
+            }
+            .btn-success {
+                @apply bg-success text-white px-4 py-2 rounded-lg text-sm transition-custom hover:bg-success/90 focus:outline-none focus:ring-2 focus:ring-success/50;
+            }
+            .btn-danger {
+                @apply bg-danger text-white px-4 py-2 rounded-lg text-sm transition-custom hover:bg-danger/90 focus:outline-none focus:ring-2 focus:ring-danger/50;
+            }
+            .card-hover {
+                @apply hover:shadow-card-hover transition-custom;
+            }
+            .required::after {
+                content: '*';
+                color: #F53F3F;
+                margin-left: 4px;
+            }
         }
     </style>
 </head>
-
-<body>
-    <div class="layuimini-container layuimini-page-anim">
-        <div class="layuimini-main">
-            <div class="layui-form layuimini-form">
-                <form id="user-settings-form" method="POST" action="{{ url_for('user_setting') }}">
-                    <div class="layui-form-item">
-                        <label class="layui-form-label required">用户名</label>
-                        <div class="layui-input-block">
-                            <input type="text" name="username" lay-verify="required" lay-reqtext="用户名不能为空" placeholder="请输入用户名"
-                                value="{{ current_user.username }}" class="layui-input">
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label required">手机号</label>
-                        <div class="layui-input-block">
-                            <input type="text" name="phone" lay-verify="required" lay-reqtext="手机号不能为空" placeholder="请输入手机号"
-                                value="{{ current_user.phone }}" class="layui-input">
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">身份证号</label>
-                        <div class="layui-input-block">
-                            <input type="text" name="id_code" placeholder="请输入身份证号" value="{{ current_user.id_code }}" class="layui-input">
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">性别</label>
-                        <div class="layui-input-block">
-                            <select name="gender" class="layui-input">
-                                <option value="">请选择性别</option>
-                                <option value="男" {% if current_user.gender=='男' %}selected{% endif %}>男</option>
-                                <option value="女" {% if current_user.gender=='女' %}selected{% endif %}>女</option>
-                                <option value="其他" {% if current_user.gender=='其他' %}selected{% endif %}>其他</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">性格</label>
-                        <div class="layui-input-block">
-                            <input type="text" name="character" placeholder="请输入性格" value="{{ current_user.character }}" class="layui-input">
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">居住地</label>
-                        <div class="layui-input-block">
-                            <input type="text" name="residence" placeholder="请输入居住地" value="{{ current_user.residence }}" class="layui-input">
-                        </div>
-                    </div>
-                    <div class="layui-form-item layui-form-text">
-                        <label class="layui-form-label">旅游爱好</label>
-                        <div class="layui-input-block">
-                            <textarea name="travel_hobby" class="layui-textarea" placeholder="请输入旅游爱好">{{ current_user.travel_hobby }}</textarea>
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
-                        <div class="layui-input-block">
-                            <button class="layui-btn layui-btn-normal layui-bg-green" lay-submit lay-filter="saveBtn">确认保存</button>
-                        </div>
-                    </div>
-                </form>
+<body class="font-inter bg-light text-dark min-h-screen flex flex-col">
+    <!-- 页面标题栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-40 py-4 px-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold text-dark">
+                    <i class="fa fa-user-circle text-primary mr-2"></i>用户设置
+                </h1>
+                <p class="text-info text-sm mt-1">管理您的个人信息</p>
             </div>
         </div>
-    </div>
-    <script src="{{ url_for('static', filename='lib/layui-v2.6.3/layui.js') }}"></script>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        <div class="max-w-3xl mx-auto">
+            <!-- 用户设置表单 -->
+            <div class="bg-white rounded-xl shadow-card overflow-hidden card-hover">
+                <div class="bg-primary/10 px-6 py-4">
+                    <h2 class="text-lg font-semibold text-primary flex items-center">
+                        <i class="fa fa-cog mr-2"></i>个人信息设置
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <form id="user-settings-form" method="POST" action="{{ url_for('user_setting') }}">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-1">
+                                <label class="block text-sm font-medium text-gray-700 required">用户名</label>
+                                <input type="text" name="username" required placeholder="请输入用户名"
+                                    value="{{ current_user.username }}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                <p class="text-xs text-gray-500">用于登录和显示的名称</p>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="block text-sm font-medium text-gray-700 required">手机号</label>
+                                <input type="text" name="phone" required placeholder="请输入手机号"
+                                    value="{{ current_user.phone }}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                <p class="text-xs text-gray-500">用于接收通知和联系</p>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="block text-sm font-medium text-gray-700">身份证号</label>
+                                <input type="text" name="id_code" placeholder="请输入身份证号"
+                                    value="{{ current_user.id_code }}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                <p class="text-xs text-gray-500">用于实名认证（选填）</p>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="block text-sm font-medium text-gray-700">性别</label>
+                                <select name="gender"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                    <option value="">请选择性别</option>
+                                    <option value="男" {% if current_user.gender=='男' %}selected{% endif %}>男</option>
+                                    <option value="女" {% if current_user.gender=='女' %}selected{% endif %}>女</option>
+                                    <option value="其他" {% if current_user.gender=='其他' %}selected{% endif %}>其他</option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="block text-sm font-medium text-gray-700">性格</label>
+                                <input type="text" name="character" placeholder="请输入性格"
+                                    value="{{ current_user.character }}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                <p class="text-xs text-gray-500">描述您的性格特点（选填）</p>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="block text-sm font-medium text-gray-700">居住地</label>
+                                <input type="text" name="residence" placeholder="请输入居住地"
+                                    value="{{ current_user.residence }}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                <p class="text-xs text-gray-500">您所在的城市或地区</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 space-y-1">
+                            <label class="block text-sm font-medium text-gray-700">旅游爱好</label>
+                            <textarea name="travel_hobby" rows="4" placeholder="请输入旅游爱好"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">{{ current_user.travel_hobby }}</textarea>
+                            <p class="text-xs text-gray-500">描述您喜欢的旅游方式和偏好（选填）</p>
+                        </div>
+
+                        <div class="mt-8 flex justify-end gap-4">
+                            <button type="submit" class="btn-primary flex items-center">
+                                <i class="fa fa-save mr-2"></i> 确认保存
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
     <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
     <script>
-        layui.use(['form'], function () {
-            var form = layui.form,
-                layer = layui.layer;
+        $(document).ready(function() {
+            // 表单提交处理
+            $('#user-settings-form').on('submit', function(e) {
+                e.preventDefault();
 
-            form.render();
-
-            form.on('submit(saveBtn)', function (data) {
                 $.ajax({
                     url: "{{ url_for('user_setting') }}",
                     type: "POST",
-                    data: $('#user-settings-form').serialize(),
-                    success: function (response) {
-                        layer.alert(response.message, {
-                            title: '提交结果'
-                        });
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        alert(response.message);
                     },
-                    error: function (xhr) {
+                    error: function(xhr) {
                         var response = JSON.parse(xhr.responseText);
-                        layer.alert(response.message, {
-                            title: '错误'
-                        });
+                        alert(response.message);
                     }
                 });
-                return false;
             });
         });
     </script>
 </body>
-
 </html>

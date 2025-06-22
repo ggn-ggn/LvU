@@ -19,17 +19,17 @@ try:
 
     # 将DataFrame中的每一行数据插入到MySQL表中
     for index, row in df.iterrows():
-        sql = ("INSERT INTO attractions (城市, 景点名称, 攻略数量, 评论数量, 星级, 排名, 简介, 链接, 图片)\n"
-               "                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)\n"
-               "                 ON DUPLICATE KEY UPDATE\n"
-               "                 城市 = VALUES(城市),\n"
-               "                 攻略数量 = VALUES(攻略数量),\n"
-               "                 评论数量 = VALUES(评论数量),\n"
-               "                 星级 = VALUES(星级),\n"
-               "                 排名 = VALUES(排名),\n"
-               "                 简介 = VALUES(简介),\n"
-               "                 链接 = VALUES(链接),\n"
-               "                 图片 = VALUES(图片)")
+        sql = """INSERT INTO attractions (城市, 景点名称, 攻略数量, 评论数量, 星级, 排名, 简介, 链接, 图片)
+                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                 ON DUPLICATE KEY UPDATE
+                 城市 = VALUES(城市),
+                 攻略数量 = VALUES(攻略数量),
+                 评论数量 = VALUES(评论数量),
+                 星级 = VALUES(星级),
+                 排名 = VALUES(排名),
+                 简介 = VALUES(简介),
+                 链接 = VALUES(链接),
+                 图片 = VALUES(图片)"""
         cursor.execute(sql, (
             row['城市'], row['景点名称'], row['攻略数量'], row['评论数量'],
             row['星级'], row['排名'], row['简介'], row['链接'], row['图片']

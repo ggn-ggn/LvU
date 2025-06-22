@@ -58,21 +58,38 @@ def index():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
-    if form.validate_on_submit():
-        existing_user = User.query.filter_by(
-            username=form.username.data).first()
-        if existing_user is None:
-            user = User(username=form.username.data,
-                        password=form.password.data)
-            db.session.add(user)
-            db.session.commit()
-            flash('注册成功', 'success')
-        else:
-            flash('用户名已存在', 'danger')
-    if form.password.data is not None and form.confirm_password.data is not None and form.password.data != form.confirm_password.data:
-        flash('两次密码不一致', 'danger')
-    return render_template('page/register.html', form=form)
 
+    # 表单验证通过
+    if form.validate_on_submit():
+        # 检查用户名是否已存在
+        existing_user = User.query.filter_by(username=form.username.data).first()
+        if existing_user:
+            flash('用户名已存在', 'danger')
+            return render_template('page/register.html', form=form)
+
+        # 创建新用户（明文存储密码，存在安全风险）
+        user = User(
+            username=form.username.data,
+            password=form.password.data  # 明文存储，仅用于演示，生产环境严禁这样做
+        )
+        db.session.add(user)
+        try:
+            db.session.commit()
+            flash('注册成功，请登录', 'success')
+            return redirect(url_for('login'))  # 注册成功后重定向到登录页
+        except Exception as e:
+            db.session.rollback()
+            flash(f'注册失败: {str(e)}', 'danger')
+
+    # 处理表单验证失败或密码不一致的情况
+    if form.errors:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f'{getattr(form, field).label.text} - {error}', 'danger')
+    elif form.password.data and form.confirm_password.data and form.password.data != form.confirm_password.data:
+        flash('两次输入的密码不一致', 'danger')
+
+    return render_template('page/register.html', form=form)
 
 # 用户登录
 @app.route('/')
@@ -698,6 +715,7 @@ def manage_team(team_id):
     ).all()
 
     return render_template('page/manage_team.html', team=team, form=form, members=members)
+
 
 
 @app.route('/manage_team/update', methods=['POST'])

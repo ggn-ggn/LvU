@@ -5,82 +5,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>驴友辅助系统主页</title>
+    <link rel="stylesheet" href="static/lib/font-awesome-4.7.0/css/font-awesome.css">
     <style>
+        /* 全局样式 */
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background: linear-gradient(to bottom, #e9f5ff, #f4f4f4);
             color: #333;
         }
 
-       .container {
-            width: 80%;
+        /* 容器样式 */
+        .container {
+            width: 90%;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 40px 20px;
         }
 
+        /* 标题样式 */
         h1 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            font-size: 36px;
+            color: #1E9FFF;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-       .section {
-            background-color: #fff;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        /* 板块样式 */
+        .section {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
         }
 
-       .section h2 {
+        .section:hover {
+            transform: translateY(-5px);
+        }
+
+        .section h2 {
             margin-top: 0;
+            font-size: 24px;
+            color: #1E9FFF;
         }
 
-       .section p {
-            line-height: 1.6;
+        .section p {
+            line-height: 1.8;
+            font-size: 16px;
         }
 
-       .slider {
+        /* 滑块样式 */
+        .slider {
             position: relative;
             width: 100%;
-            height: 400px;
+            height: 500px;
             overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-       .slides {
+        .slides {
             display: flex;
             width: 400%;
             height: 100%;
             transition: transform 0.5s ease-in-out;
         }
 
-       .slide {
+        .slide {
             width: 25%;
             height: 100%;
+            position: relative;
         }
 
-       .slide img {
+        .slide img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            filter: brightness(0.8);
         }
 
-       .navigation {
+        .slide::before {
+            content: '';
             position: absolute;
-            bottom: 20px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        /* 导航样式 */
+        .navigation {
+            position: absolute;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
         }
 
-       .navigation label {
-            width: 15px;
-            height: 15px;
+        .navigation label {
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.5);
-            margin: 0 5px;
+            background-color: rgba(255, 255, 255, 0.7);
+            margin: 0 8px;
             cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .navigation label:hover {
+            background-color: #1E9FFF;
         }
 
         input[type="radio"] {
@@ -102,20 +140,37 @@
         #radio4:checked~.slides {
             transform: translateX(-75%);
         }
+
+        /* 按钮样式 */
+        button {
+            background-color: #28a745;
+            border: none;
+            border-radius: 4px;
+            color: #ffffff;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>驴友辅助系统</h1>
+        <h1><i class="fa fa-map-signs"></i> 驴友辅助系统</h1>
         <div class="section">
-            <h2>系统功能介绍</h2>
+            <h2><i class="fa fa-cogs"></i> 系统功能介绍</h2>
             <p>
-                欢迎使用驴友辅助系统！本系统精心打造，旨在为广大热爱户外探险的驴友们提供一个高效、便捷且功能丰富的优质平台。在当今快节奏的生活中，越来越多的人渴望走出城市的喧嚣，投身于大自然的怀抱，感受户外的魅力。然而，组织和参与一次成功的户外活动并非易事，需要考虑诸多方面，如行程规划、人员召集、物资准备等。<br>
-                我们的驴友辅助系统正是为了解决这些难题而生。它整合了多种实用功能，从活动的发起与组织，到参与者的招募与管理，再到行程中的各种信息交流与资源共享，全方位助力每一位驴友轻松开启精彩的户外之旅。无论是攀登雄伟的山峰，探寻幽深的峡谷，还是漫步于宁静的森林，亦或是穿越广袤的沙漠，本系统都将成为您不可或缺的得力助手。
+                <i class="fa fa-users"></i> 欢迎使用驴友辅助系统！本系统精心打造，旨在为广大热爱户外探险的驴友们提供一个高效、便捷且功能丰富的优质平台。在当今快节奏的生活中，越来越多的人渴望走出城市的喧嚣，投身于大自然的怀抱，感受户外的魅力。然而，组织和参与一次成功的户外活动并非易事，需要考虑诸多方面，如行程规划、人员召集、物资准备等。<br>
+                <i class="fa fa-check-circle"></i> 我们的驴友辅助系统正是为了解决这些难题而生。它整合了多种实用功能，从活动的发起与组织，到参与者的招募与管理，再到行程中的各种信息交流与资源共享，全方位助力每一位驴友轻松开启精彩的户外之旅。无论是攀登雄伟的山峰，探寻幽深的峡谷，还是漫步于宁静的森林，亦或是穿越广袤的沙漠，本系统都将成为您不可或缺的得力助手。
             </p>
         </div>
-        <div class="slider" style="height: 600px;">
+        <div class="slider">
             <input type="radio" name="radio-btn" id="radio1" checked>
             <input type="radio" name="radio-btn" id="radio2">
             <input type="radio" name="radio-btn" id="radio3">
@@ -142,6 +197,18 @@
             </div>
         </div>
     </div>
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const radios = document.querySelectorAll('input[name="radio-btn"]');
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            radios[currentSlide].checked = true;
+        }
+
+        setInterval(nextSlide, 5000);
+    </script>
 </body>
 
 </html>

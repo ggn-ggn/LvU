@@ -1,109 +1,181 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <!-- 引入 Bootstrap CSS 实现弹窗 -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
+    <title>我加入的队伍 - 驴友辅助系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-        h2 {
-            margin-bottom: 20px;
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E9FFF',
+                        secondary: '#36CFC9',
+                        accent: '#FF7D00',
+                        success: '#00B42A',
+                        danger: '#F53F3F',
+                        pending: '#86909C',
+                        dark: '#333333',
+                        light: '#F5F7FA'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 4px 12px rgba(0, 0, 0, 0.08)',
+                        'card-hover': '0 8px 20px rgba(0, 0, 0, 0.12)',
+                    }
+                },
+            }
         }
+    </script>
 
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .team-info {
-            flex-grow: 1;
-        }
-
-        form {
-            margin-left: 10px;
-        }
-
-        a,
-        button {
-            display: inline-block;
-            color:#218838;
-            margin-right: 10px;
-        }
-
-        button:disabled {
-            background-color: grey;
-            cursor: not-allowed;
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .transition-custom {
+                transition: all 0.3s ease;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-4 py-2 rounded-lg text-sm transition-custom hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50;
+            }
+            .btn-secondary {
+                @apply bg-white text-dark border border-gray-300 px-4 py-2 rounded-lg text-sm transition-custom hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300;
+            }
+            .btn-danger {
+                @apply bg-danger text-white px-4 py-2 rounded-lg text-sm transition-custom hover:bg-danger/90 focus:outline-none focus:ring-2 focus:ring-danger/50;
+            }
+            .input-focus {
+                @apply focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom;
+            }
+            .card-hover {
+                @apply hover:shadow-card-hover transition-custom;
+            }
+            .status-badge {
+                @apply px-3 py-1 rounded-full text-xs font-medium;
+            }
+            .team-info-row {
+                @apply flex items-center text-gray-600 mb-2;
+            }
+            .team-info-row i {
+                @apply w-6 text-primary;
+            }
         }
     </style>
 </head>
-
-<body>
-    <!-- 弹窗模态框 -->
-    <div class="modal fade" id="flashModal" tabindex="-1" role="dialog" aria-labelledby="flashModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <ul class="flashes">
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                        {% for category, message in messages %}
-                        <li class="{{ category }}">{{ message }}</li>
-                        {% endfor %}
-                        {% endif %}
-                        {% endwith %}
-                    </ul>
-                </div>
+<body class="font-inter bg-light text-dark min-h-screen flex flex-col">
+    <!-- 页面标题栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-40 py-4 px-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold text-dark">
+                    <i class="fa fa-users text-primary mr-2"></i>我加入的队伍
+                </h1>
+                <p class="text-info text-sm mt-1">查看你已加入的户外活动队伍，随时了解队伍动态</p>
             </div>
         </div>
-    </div>
+    </header>
 
-    <h2>我加入的队伍</h2>
-    <ul>
-        {% for team in approved_teams %}
-        <li>
-            <span class="team-info">{{ team.destination }} ({{ team.current_members }}/{{ team.max_members }})</span>
-            <a href="{{ url_for('view_team', team_id=team.id) }}">查看队伍信息</a> <!-- 新添加的查看队伍信息按钮 -->
-            <a href="{{ url_for('view_teamfriend', team_id=team.id) }}">查看队员信息</a>
-            <form method="POST" action="{{ url_for('leave_team', team_id=team.id) }}"
-                style="display: inline;padding: 0px;width:auto;box-shadow:none;border:0px;">
-                <button type="submit" class="layui-btn layui-bg-green">退出队伍</button>
-            </form>
-        </li>
-        {% endfor %}
-    </ul>
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        <!-- 消息提示 -->
+        <div class="mb-6">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="bg-{{ category }}/10 border-l-4 border-primary text-gray-700 p-4 rounded mb-3" role="alert">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fa fa-info-circle text-primary"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium">{{ message }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
 
-    <!-- 引入 Bootstrap JS 和 jQuery -->
-    <script src="{{ url_for('static', filename='js/jquery-3.5.1.slim.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
-    <script src=" {{ url_for('static', filename='js/bootstrap.min.js' ) }}"></script>
+        {% if approved_teams %}
+        <div class="grid grid-cols-1 gap-6">
+            {% for team in approved_teams %}
+            <div class="bg-white rounded-xl shadow-card overflow-hidden card-hover">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-primary flex items-center">
+                            <i class="fa fa-map-marker-alt mr-2"></i>
+                            {{ team.destination }}
+                        </h3>
+                        <span class="status-badge bg-primary/10 text-primary">
+                            {{ team.current_members }}/{{ team.max_members }}
+                        </span>
+                    </div>
+
+                    <div class="space-y-2 mb-4">
+                        <div class="team-info-row">
+                            <i class="fa fa-calendar-alt"></i>
+                            <span>{{ team.travel_time }}</span>
+                        </div>
+                        <div class="team-info-row">
+                            <i class="fa fa-car"></i>
+                            <span>{{ team.travel_mode }}</span>
+                        </div>
+                        <div class="team-info-row">
+                            <i class="fa fa-map-marker"></i>
+                            <span>{{ team.departure_location }}</span>
+                        </div>
+                    </div>
+
+                    <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+                        <div class="bg-primary h-2 rounded-full" style="width: {{ (team.current_members / team.max_members) * 100 }}%"></div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-3 justify-end">
+                        <a href="{{ url_for('view_team', team_id=team.id) }}" class="btn-primary">
+                            <i class="fa fa-info-circle mr-2"></i> 队伍详情
+                        </a>
+                        <a href="{{ url_for('view_teamfriend', team_id=team.id) }}" class="btn-primary">
+                            <i class="fa fa-users mr-2"></i> 队员信息
+                        </a>
+                        <button onclick="confirmLeaveTeam('{{ url_for('leave_team', team_id=team.id) }}')" class="btn-danger">
+                            <i class="fa fa-sign-out mr-2"></i> 退出队伍
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-white rounded-xl shadow-card p-8 text-center">
+            <div class="mb-4 text-primary">
+                <i class="fa fa-users text-5xl"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-800 mb-2">你还没有加入任何队伍</h3>
+            <p class="text-gray-600 mb-6">浏览并加入感兴趣的队伍，开始你的旅行计划</p>
+            <a href="{{ url_for('discover_teams') }}" class="btn-primary inline-flex">
+                <i class="fa fa-search mr-2"></i> 查找并加入队伍
+            </a>
+        </div>
+        {% endif %}
+    </main>
+
     <script>
-        $(document).ready(function () {
-            if ($('.flashes li').length > 0) {
-                $('#flashModal').modal('show');
+        function confirmLeaveTeam(url) {
+            if (confirm('确定要退出该队伍吗？退出后将无法查看队伍信息和参与活动。')) {
+                window.location.href = url;
             }
-        });
+        }
     </script>
 </body>
-
 </html>

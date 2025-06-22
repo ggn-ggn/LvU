@@ -1,108 +1,168 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>发送的邀请</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f9;
-        }
+    <title>发送的邀请 - 驴友辅助系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-        h2 {
-            margin-bottom: 20px;
-            color: #333;
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E9FFF',
+                        secondary: '#36CFC9',
+                        accent: '#FF7D00',
+                        success: '#00B42A',
+                        danger: '#F53F3F',
+                        pending: '#86909C',
+                        dark: '#333333',
+                        light: '#F5F7FA'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 4px 12px rgba(0, 0, 0, 0.08)',
+                        'card-hover': '0 8px 20px rgba(0, 0, 0, 0.12)',
+                    }
+                },
+            }
         }
+    </script>
 
-        .invitation-list {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            margin-bottom: 10px;
-            display: flex;
-            flex-direction: column;
-            background: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .invitation-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-
-        .invitation-info span {
-            flex: 1;
-            text-align: center;
-        }
-
-        button {
-            display: inline-block;
-            margin-right: 10px;
-            padding: 10px 15px;
-            color: #fff;
-            background-color: #2E8B57;
-            border: none;
-            border-radius: 4px;
-            text-decoration: none;
-            text-align: center;
-        }
-        a{
-            color:#218838;
-        }
-
-        button[disabled] {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        button:hover:not([disabled]) {
-            background-color: #2E8B57;
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .transition-custom {
+                transition: all 0.3s ease;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .status-badge {
+                @apply px-3 py-1 rounded-full text-xs font-medium;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-4 py-2 rounded-lg text-sm transition-custom hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50;
+            }
+            .card-hover {
+                @apply hover:shadow-card-hover transition-custom;
+            }
         }
     </style>
 </head>
+<body class="font-inter bg-light text-dark min-h-screen flex flex-col">
+    <!-- 页面标题栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-40 py-4 px-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold text-dark">
+                    <i class="fa fa-paper-plane text-primary mr-2"></i>发送的邀请
+                </h1>
+                <p class="text-info text-sm mt-1">查看和管理您发送的邀请</p>
+            </div>
+        </div>
+    </header>
 
-<body>
-    <div class="invitations-info">
-        <h2>发送的邀请</h2>
-        <ul>
-            {% for invitation in invitations %}
-            <li>
-                <span class="invitation-info">
-                    <span>队伍目的地: {{ invitation.team.destination }}</span>
-                    <span>被邀请用户: {{ invitation.invitee.username }}</span>
-                    <span class="status-label">
-                        {% if invitation.status == 'accepted' %}
-                        状态：邀请已被接受
-                        {% elif invitation.status == 'denied' %}
-                        状态：邀请已被拒绝
-                        {% else %}
-                        状态：邀请未被处理
-                        {% endif %}
-                    </span>
-                </span>
-            </li>
-            {% endfor %}
-        </ul>
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        <!-- 状态标签 -->
+        <div class="mb-6 flex flex-wrap gap-2">
+            <a href="#all" class="px-4 py-2 bg-primary/10 text-primary rounded-lg text-sm font-medium transition-custom hover:bg-primary/20">
+                <i class="fa fa-list mr-1"></i> 全部邀请
+            </a>
+        </div>
+
+        <!-- 邀请列表 -->
+        <section id="all" class="mb-8">
+            <div class="bg-white rounded-xl shadow-card overflow-hidden">
+                <div class="bg-primary/10 px-6 py-4">
+                    <h2 class="text-lg font-semibold text-primary flex items-center">
+                        <i class="fa fa-paper-plane mr-2"></i>发送的邀请
+                    </h2>
+                </div>
+                <div class="p-0">
+                    {% if invitations %}
+                    <ul class="divide-y divide-gray-100">
+                        {% for invitation in invitations %}
+                        <li class="px-6 py-4 hover:bg-gray-50 transition-custom">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between">
+                                <div class="mb-3 md:mb-0">
+                                    <h3 class="font-medium text-dark">
+                                        <i class="fa fa-map-marker text-primary mr-1"></i>
+                                        队伍目的地: {{ invitation.team.destination }}
+                                    </h3>
+                                    <p class="text-sm text-gray-600 mt-1">
+                                        <i class="fa fa-user text-primary mr-1"></i>
+                                        被邀请用户: {{ invitation.invitee.username }}
+                                    </p>
+                                    <div class="mt-2">
+                                        {% if invitation.status == 'accepted' %}
+                                        <span class="status-badge bg-success/10 text-success">
+                                            <i class="fa fa-check-circle mr-1"></i>状态：邀请已被接受
+                                        </span>
+                                        {% elif invitation.status == 'denied' %}
+                                        <span class="status-badge bg-danger/10 text-danger">
+                                            <i class="fa fa-times-circle mr-1"></i>状态：邀请已被拒绝
+                                        </span>
+                                        {% else %}
+                                        <span class="status-badge bg-pending/10 text-pending">
+                                            <i class="fa fa-clock-o mr-1"></i>状态：邀请未被处理
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap gap-2 mt-3 md:mt-0">
+                                    <a href="{{ url_for('view_team', team_id=invitation.team.id) }}" class="btn-primary">
+                                        <i class="fa fa-info-circle mr-1"></i>查看队伍
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="px-6 py-8 text-center text-gray-500">
+                        <i class="fa fa-inbox text-4xl mb-3 opacity-30"></i>
+                        <p>暂无发送的邀请</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 返回首页按钮 -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <a href="{{ url_for('home') }}" class="btn-primary flex items-center shadow-lg">
+            <i class="fa fa-home mr-2"></i> 返回首页
+        </a>
     </div>
-    <a href="{{ url_for('home') }}">返回首页</a>
-</body>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
 </html>

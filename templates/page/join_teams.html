@@ -40,7 +40,6 @@
         a,
         button {
             display: inline-block;
-            color:#218838;
             margin-right: 10px;
         }
 
@@ -59,9 +58,9 @@
             <span class="team-info">{{ team.destination }} ({{ team.current_members }}/{{ team.max_members }})</span>
             <form method="POST" action="{{ url_for('join_team', team_id=team.id) }}">
                 {% if team.current_members >= team.max_members %}
-                <button type="submit" class="layui-bg-green" disabled>Join</button>
+                <button type="submit" disabled>Join</button>
                 {% else %}
-                <button type="submit" class="layui-bg-green">Join</button>
+                <button type="submit">Join</button>
                 {% endif %}
             </form>
             <a href="{{ url_for('view_team', team_id=team.id) }}">View Members</a>

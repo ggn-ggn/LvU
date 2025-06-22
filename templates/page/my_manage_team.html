@@ -1,112 +1,252 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN">
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <!-- 引入 Bootstrap CSS 实现弹窗 -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
+    <title>我管理的队伍 - 驴友辅助系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-        h2 {
-            margin-bottom: 20px;
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E9FFF',
+                        secondary: '#36CFC9',
+                        accent: '#FF7D00',
+                        dark: '#333333',
+                        light: '#F5F7FA',
+                        status: {
+                            planning: '#86909C',
+                            recruiting: '#1E9FFF',
+                            going: '#FF7D00',
+                            finished: '#00B42A'
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 4px 12px rgba(0, 0, 0, 0.08)',
+                        'card-hover': '0 8px 20px rgba(0, 0, 0, 0.12)',
+                    }
+                },
+            }
         }
+    </script>
 
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .team-info {
-            flex-grow: 1;
-        }
-
-        form {
-            margin-left: 10px;
-        }
-
-        a,
-        button {
-            color:#218838;
-            display: inline-block;
-            margin-right: 10px;
-        }
-
-        button:disabled {
-            background-color: grey;
-            cursor: not-allowed;
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .transition-custom {
+                transition: all 0.3s ease;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .status-badge {
+                @apply px-3 py-1 rounded-full text-xs font-medium text-white;
+            }
+            .input-focus {
+                @apply focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom;
+            }
         }
     </style>
 </head>
+<body class="font-inter bg-light text-dark min-h-screen flex flex-col">
+    <!-- 页面标题栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-40 py-4 px-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold text-dark">
+                    <i class="fa fa-users text-primary mr-2"></i>我管理的队伍
+                </h1>
+                <p class="text-info text-sm mt-1">管理你创建的所有户外活动队伍</p>
+            </div>
+            <a href="{{ url_for('create_team') }}" class="px-4 py-2 bg-primary text-white rounded-lg text-sm transition-custom hover:bg-primary/90">
+                <i class="fa fa-plus mr-1"></i>创建新队伍
+            </a>
+        </div>
+    </header>
 
-<body>
-    <!-- 弹窗模态框 -->
-    <div class="modal fade" id="flashModal" tabindex="-1" role="dialog" aria-labelledby="flashModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="关闭">
-                        <span aria-hidden="true">&times;</span>
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        <!-- 筛选工具栏 -->
+        <div class="bg-white rounded-xl shadow-card p-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-dark mb-1">出发地</label>
+                    <input type="text" id="departure-filter" placeholder="输入出发地搜索" class="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-dark mb-1">目的地</label>
+                    <input type="text" id="destination-filter" placeholder="输入目的地搜索" class="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-dark mb-1">出行方式</label>
+                    <input type="text" id="mode-filter" placeholder="输入出行方式搜索" class="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus">
+                </div>
+                <div class="flex items-end">
+                    <button id="filter-button" class="w-full md:w-auto px-4 py-2 bg-primary text-white rounded-lg text-sm transition-custom hover:bg-primary/90">
+                        <i class="fa fa-filter mr-1"></i>筛选
                     </button>
-                </div>
-                <div class="modal-body">
-                    <ul class="flashes">
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                        {% for category, message in messages %}
-                        <li class="{{ category }}">{{ message }}</li>
-                        {% endfor %}
-                        {% endif %}
-                        {% endwith %}
-                    </ul>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-bg-green" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <h2>我管理的队伍</h2>
-    <ul>
-        {% for team in teams if team.admin_id == current_user.id %}
-        <li>
-            <span class="team-info">{{ team.destination }} ({{ team.current_members }}/{{ team.max_members }})</span>
-            <a href="{{ url_for('manage_team', team_id=team.id) }}">管理队伍</a>
-            <a href="{{ url_for('view_teamfriend', team_id=team.id) }}" >查看队员信息</a>
-<a href="{{ url_for('view_team', team_id=team.id) }}">查看队伍信息</a>
-        </li>
-        {% endfor %}
-    </ul>
+        <!-- 队伍列表 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="team-list">
+            {% if teams|length > 0 %}
+            {% for team in teams if team.admin_id == current_user.id %}
+            <div class="team-card bg-white rounded-xl shadow-card overflow-hidden transition-custom hover:shadow-card-hover">
+                <!-- 队伍状态标签 -->
+                <div class="relative">
+                    <span class="absolute top-3 right-3 status-badge bg-status-{{ team.status }}">
+                        {{ team.status|capitalize }}
+                    </span>
+                    <!-- 队伍封面图 -->
+                    <img src="https://picsum.photos/600/300?random={{ team.id }}" alt="{{ team.destination }}" class="w-full h-36 object-cover">
+                </div>
 
-    <a href="{{ url_for('create_team') }}">创建新队伍</a>
+                <!-- 队伍详情 -->
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-base font-semibold text-dark">{{ team.destination }}</h3>
+                        <span class="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
+                            {{ team.current_members }}/{{ team.max_members }}
+                        </span>
+                    </div>
 
-    <!-- 引入 Bootstrap JS 和 jQuery -->
-    <script src="{{ url_for('static', filename='js/jquery-3.5.1.slim.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
-    <script src=" {{ url_for('static', filename='js/bootstrap.min.js' ) }}"></script>
+                    <div class="space-y-2 mb-3 text-xs text-info">
+                        <div class="flex items-center">
+                            <i class="fa fa-map-marker text-primary mr-1 w-4"></i>
+                            <span>{{ team.departure_location }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fa fa-calendar text-primary mr-1 w-4"></i>
+                            <span>{{ team.travel_time }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fa fa-car text-primary mr-1 w-4"></i>
+                            <span>{{ team.travel_mode }}</span>
+                        </div>
+                    </div>
+
+                    <!-- 队伍数据统计 -->
+                    <div class="grid grid-cols-3 gap-1 mb-3">
+                        <div class="p-1 bg-light rounded-lg text-xs">
+                            <div class="text-info">预算</div>
+                            <div class="font-medium">¥{{ team.travel_budget }}</div>
+                        </div>
+                        <div class="p-1 bg-light rounded-lg text-xs">
+                            <div class="text-info">类型</div>
+                            <div class="font-medium">{{ team.team_type }}</div>
+                        </div>
+                        <div class="p-1 bg-light rounded-lg text-xs">
+                            <div class="text-info">成员</div>
+                            <div class="font-medium">{{ team.current_members }}</div>
+                        </div>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <div class="flex flex-wrap gap-2">
+                        <a href="{{ url_for('view_teamfriend', team_id=team.id) }}" class="flex-1 px-3 py-1.5 bg-light text-dark rounded-lg text-xs justify-center transition-custom hover:bg-gray-200">
+                            <i class="fa fa-user-friends mr-1"></i>队员
+                        </a>
+                        <a href="{{ url_for('view_team', team_id=team.id) }}" class="flex-1 px-3 py-1.5 bg-light text-dark rounded-lg text-xs justify-center transition-custom hover:bg-gray-200">
+                            <i class="fa fa-eye mr-1"></i>详情
+                        </a>
+                        <a href="{{ url_for('manage_team', team_id=team.id) }}" class="w-full md:w-auto px-3 py-1.5 bg-primary text-white rounded-lg text-xs justify-center transition-custom hover:bg-primary/90">
+                            <i class="fa fa-edit mr-1"></i>编辑
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <!-- 空状态提示 -->
+            <div class="col-span-full text-center py-10">
+                <div class="w-16 h-16 bg-light rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa fa-inbox text-xl text-info"></i>
+                </div>
+                <h3 class="text-base font-medium text-dark mb-2">暂无管理的队伍</h3>
+                <p class="text-info text-sm mb-4">你还没有创建任何队伍，点击"创建新队伍"按钮开始组织你的第一次户外活动</p>
+                <a href="{{ url_for('create_team') }}" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg text-sm transition-custom hover:bg-primary/90">
+                    <i class="fa fa-plus mr-1"></i>创建新队伍
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
     <script>
-        $(document).ready(function () {
-            if ($('.flashes li').length > 0) {
-                $('#flashModal').modal('show');
+        document.addEventListener('DOMContentLoaded', function() {
+            // 筛选功能
+            const filterButton = document.getElementById('filter-button');
+            const departureFilter = document.getElementById('departure-filter');
+            const destinationFilter = document.getElementById('destination-filter');
+            const modeFilter = document.getElementById('mode-filter');
+            const teamCards = document.querySelectorAll('.team-card');
+
+            filterButton.addEventListener('click', function() {
+                const departure = departureFilter.value.toLowerCase();
+                const destination = destinationFilter.value.toLowerCase();
+                const mode = modeFilter.value.toLowerCase();
+
+                teamCards.forEach(card => {
+                    const departureText = card.querySelector('.fa-map-marker').nextElementSibling.textContent.toLowerCase();
+                    const destinationText = card.querySelector('h3').textContent.toLowerCase();
+                    const modeText = card.querySelector('.fa-car').nextElementSibling.textContent.toLowerCase();
+
+                    const showCard = (departure === '' || departureText.includes(departure)) &&
+                                     (destination === '' || destinationText.includes(destination)) &&
+                                     (mode === '' || modeText.includes(mode));
+
+                    card.style.display = showCard ? 'block' : 'none';
+                });
+            });
+
+            // 通知提示
+            function showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-lg shadow-lg z-50 flex items-center text-sm ${
+                    type === 'success' ? 'bg-success text-white' :
+                    type === 'error' ? 'bg-danger text-white' :
+                    'bg-primary text-white'
+                }`;
+                notification.innerHTML = `
+                    <i class="fa fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'info-circle'} mr-2"></i>
+                    <span>${message}</span>
+                `;
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateY(-20px)';
+                    notification.style.transition = 'all 0.3s ease';
+
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 2000);
             }
+
+            // 显示Flash消息
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <script>
+                        showNotification("{{ message }}", "{{ category }}");
+                    </script>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
         });
     </script>
 </body>
-
 </html>

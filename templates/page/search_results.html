@@ -39,7 +39,6 @@
 
         a,
         button {
-            color:#218838;
             display: inline-block;
             margin-right: 10px;
         }
@@ -58,7 +57,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close layui-bg-green" data-dismiss="modal" aria-label="关闭">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="关闭">
                         <span aria-hidden="true">&times</span>
                     </button>
                 </div>
@@ -86,16 +85,16 @@
             <span class="team-info">{{ team.destination }} ({{ team.current_members }}/{{ team.max_members }})</span>
             <form method="POST" action="{{ url_for('join_team', team_id=team.id) }}">
                 {% if team.current_members >= team.max_members %}
-                <button type="submit" class="layui-bg-green" disabled>加入</button>
+                <button type="submit" disabled>加入</button>
                 {% else %}
-                <button type="submit" class="layui-bg-green">加入</button>
+                <button type="submit">加入</button>
                 {% endif %}
             </form>
             <a href="{{ url_for('view_team', team_id=team.id) }}">查看队伍信息</a>
         </li>
         {% endfor %}
     </ul>
-    <a href="{{ url_for('joinable_teams') }}" class="layui-btn layui-bg-green">返回</a>
+    <a href="{{ url_for('joinable_teams') }}" class="btn btn-primary">返回</a>
 
     <!-- 引入 Bootstrap JS 和 jQuery -->
     <script src="{{ url_for('static', filename='js/jquery-3.5.1.slim.min.js') }}"></script>

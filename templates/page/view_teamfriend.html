@@ -1,232 +1,242 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>查看队伍信息</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='lib/layui-v2.6.3/css/layui.css') }}" media="all">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+    <title>查看队伍信息 - 驴友辅助系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
 
-    <style>
-        .swiper-container {
-            width: 100%;
-            overflow: hidden;  /* 隐藏溢出部分 */
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E9FFF',
+                        secondary: '#36CFC9',
+                        accent: '#FF7D00',
+                        success: '#00B42A',
+                        danger: '#F53F3F',
+                        pending: '#86909C',
+                        dark: '#333333',
+                        light: '#F5F7FA'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 4px 12px rgba(0, 0, 0, 0.08)',
+                        'card-hover': '0 8px 20px rgba(0, 0, 0, 0.12)',
+                    }
+                },
+            }
         }
+    </script>
 
-        .swiper-slide {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f9;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .team-info,
-        .members-info,
-        .attractions-info {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .team-info p,
-        .members-info p,
-        .attractions-info p {
-            margin: 5px 0;
-            color: #555;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            margin-bottom: 10px;
-            display: flex;
-            flex-direction: column;
-            background: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .member-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-
-        .member-info span {
-            flex: 1;
-            text-align: center;
-        }
-
-        .admin-label {
-            font-weight: bold;
-            color: red;
-        }
-
-        .attraction-item {
-            margin-bottom: 10px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #f9f9f9;
-        }
-
-        .attraction-item img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-        }
-
-        .attraction-info {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 0;
-        }
-
-        .attraction-info a {
-            color: #218838;
-            text-decoration: none;
-        }
-
-        .attraction-info a:hover {
-            text-decoration: underline;
-        }
-
-        a{
-            display: inline-block;
-            margin-right: 10px;
-            padding: 10px 15px;
-            color: #2E8B57;
-            border: none;
-            border-radius: 4px;
-            text-decoration: none;
-            text-align: center;
-        }
-        button {
-            display: inline-block;
-            margin-right: 10px;
-            padding: 10px 15px;
-            color: #fff;
-            background-color: #2E8B57;
-            border: none;
-            border-radius: 4px;
-            text-decoration: none;
-            text-align: center;
-        }
-
-        a:hover{
-            color: #2E8B57;
-        }
-        button:hover {
-            color: #fff;
-            background-color: #2E8B57;
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .transition-custom {
+                transition: all 0.3s ease;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-4 py-2 rounded-lg text-sm transition-custom hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50;
+            }
+            .btn-success {
+                @apply bg-success text-white px-4 py-2 rounded-lg text-sm transition-custom hover:bg-success/90 focus:outline-none focus:ring-2 focus:ring-success/50;
+            }
+            .btn-danger {
+                @apply bg-danger text-white px-4 py-2 rounded-lg text-sm transition-custom hover:bg-danger/90 focus:outline-none focus:ring-2 focus:ring-danger/50;
+            }
+            .card-hover {
+                @apply hover:shadow-card-hover transition-custom;
+            }
+            .admin-label {
+                @apply font-bold text-danger;
+            }
         }
     </style>
 </head>
-<body>
-    <a href="{{ url_for('my_manage_team') }}" class="layui-btn layui-bg-green">返回</a>
-    <div class="layuimini-container">
-        <div class="layuimini-main">
-            <div class="layui-row layui-col-space15">
-                <div class="layui-col-md12">
-                    <div class="layui-card">
-                        <div class="layui-card-header"><h2><strong>队员信息</strong></h2></div>
-                        <div class="layui-card-body">
-                            <ul>
-                                {% for member in approved_members %}
-                                <li>
-                                    <span class="member-info">
-                                        {% if member.id == team.admin_id %}
-                                        <span class="admin-label">(管理员)</span>
-                                        {% else %}
-                                        <span>&nbsp;</span>
-                                        {% endif %}
-                                        <span>用户名: {{ member.username }}</span>
-                                        <span>手机号: {{ member.phone }}</span>
-                                        <span>性格: {{ member.character }}</span>
-                                        <span>爱好: {{ member.travel_hobby }}</span>
-                                        <span>居住地: {{ member.residence }}</span>
-                                        <span>性别: {{ member.gender }}</span>
-                                    </span>
-                                </li>
-                                {% endfor %}
-                            </ul>
+<body class="font-inter bg-light text-dark min-h-screen flex flex-col">
+    <!-- 页面标题栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-40 py-4 px-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold text-dark">
+                    <i class="fa fa-users text-primary mr-2"></i>队伍信息
+                </h1>
+                <p class="text-info text-sm mt-1">查看和管理队伍详情</p>
+            </div>
+            <a href="{{ url_for('my_manage_team') }}" class="btn-primary flex items-center">
+                <i class="fa fa-arrow-left mr-2"></i> 返回
+            </a>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 左侧队伍信息 -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-white rounded-xl shadow-card overflow-hidden card-hover">
+                    <div class="bg-primary/10 px-6 py-4">
+                        <h2 class="text-lg font-semibold text-primary flex items-center">
+                            <i class="fa fa-info-circle mr-2"></i>队伍基本信息
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <span class="text-gray-600 w-28 sm:w-32">目的地:</span>
+                                <span class="font-medium">{{ team.destination }}</span>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <span class="text-gray-600 w-28 sm:w-32">出发地点:</span>
+                                <span class="font-medium">{{ team.departure_location }}</span>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <span class="text-gray-600 w-28 sm:w-32">出行方式:</span>
+                                <span class="font-medium">{{ team.travel_mode }}</span>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <span class="text-gray-600 w-28 sm:w-32">队伍类型:</span>
+                                <span class="font-medium">{{ team.team_type }}</span>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <span class="text-gray-600 w-28 sm:w-32">出行时间:</span>
+                                <span class="font-medium">{{ team.travel_time }}</span>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <span class="text-gray-600 w-28 sm:w-32">旅游预算:</span>
+                                <span class="font-medium">{{ team.travel_budget }}元</span>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <span class="text-gray-600 w-28 sm:w-32">最大人数:</span>
+                                <span class="font-medium">{{ team.max_members }}</span>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <span class="text-gray-600 w-28 sm:w-32">当前人数:</span>
+                                <span class="font-medium">{{ team.current_members }}</span>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <span class="text-gray-600 w-28 sm:w-32 pt-1">旅行计划:</span>
+                                <div class="font-medium" id="travelPlan">{{ team.travel_plan }}</div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <span class="text-gray-600 w-28 sm:w-32">队伍热度:</span>
+                                <div class="flex items-center">
+                                    <span class="font-medium mr-2">{{ team.popularity }}</span>
+                                    <div class="w-36 bg-gray-200 rounded-full h-2">
+                                        <div class="bg-primary h-2 rounded-full" style="width: {{ team.popularity_percentage }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧内容 -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- 队员信息 -->
+                <div class="bg-white rounded-xl shadow-card overflow-hidden card-hover">
+                    <div class="bg-primary/10 px-6 py-4">
+                        <h2 class="text-lg font-semibold text-primary flex items-center">
+                            <i class="fa fa-users mr-2"></i>队员信息
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">身份</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">用户名</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">手机号</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">性格</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">旅游爱好</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    {% for member in approved_members %}
+                                    <tr class="hover:bg-gray-50 transition-custom">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            {% if member.id == team.admin_id %}
+                                            <span class="admin-label"><i class="fa fa-shield mr-1"></i>管理员</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">{{ member.username }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">{{ member.phone }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">{{ member.character }}</div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm text-gray-900 line-clamp-2">{{ member.travel_hobby }}</div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var swiper = new Swiper('.swiper-container', {
-            loop: true,
-            pagination: {
-                el: '.swiper-pagination',
-                clickable: true,
-            },
-            navigation: {
-                nextEl: '.swiper-button-next',
-                prevEl: '.swiper-button-prev',
-            },
-            autoplay: {
-                delay: 5000,
-                disableOnInteraction: false,
-            },
-            slidesPerView: 1,  // 每次只显示一个slide
-            spaceBetween: 0,   // slide之间的间距
-        });
-    });
+    </main>
 
-    function addToTravelPlan(attractionName) {
-        const teamId = {{ team.id }};
-    fetch('/add_to_travel_plan', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ team_id: teamId, attraction_name: attractionName })
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('景点已成功添加到旅行计划！');
-                // 更新界面上显示的旅行计划部分
-                const travelPlanElement = document.getElementById('travelPlan');
-                const currentPlan = travelPlanElement.innerText;
-                if (currentPlan.trim() === '') {
-                    travelPlanElement.innerText = attractionName;
-                } else {
-                    travelPlanElement.innerText = `${currentPlan}，${attractionName}`;
-                }
-            } else {
-                alert('操作失败: ' + data.message);
+    <script>
+        // 等待DOM完全加载后初始化Swiper
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查是否有景点数据
+            const swiperWrapper = document.querySelector('.swiper-wrapper');
+            const noAttractionsMessage = document.getElementById('noAttractionsMessage');
+
+            if (swiperWrapper && swiperWrapper.children.length === 0) {
+                noAttractionsMessage.classList.remove('hidden');
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
         });
-}
-</script>
 
+        function addToTravelPlan(attractionName) {
+            const teamId = {{ team.id }};
+            fetch('/add_to_travel_plan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ team_id: teamId, attraction_name: attractionName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('景点已成功添加到旅行计划！');
+                    // 更新界面上显示的旅行计划部分
+                    const travelPlanElement = document.getElementById('travelPlan');
+                    const currentPlan = travelPlanElement.innerText;
+                    if (currentPlan.trim() === '') {
+                        travelPlanElement.innerText = attractionName;
+                    } else {
+                        travelPlanElement.innerText = `${currentPlan}，${attractionName}`;
+                    }
+                } else {
+                    alert('操作失败: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
 </body>
 </html>

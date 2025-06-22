@@ -1,99 +1,149 @@
-<!-- templates/notifications.html -->
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>消息通知</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f9;
-        }
+    <title>消息通知 - 驴友辅助系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-        h2 {
-            margin-bottom: 20px;
-            color: #333;
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E9FFF',
+                        secondary: '#36CFC9',
+                        accent: '#FF7D00',
+                        success: '#00B42A',
+                        danger: '#F53F3F',
+                        pending: '#86909C',
+                        dark: '#333333',
+                        light: '#F5F7FA'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 4px 12px rgba(0, 0, 0, 0.08)',
+                        'card-hover': '0 8px 20px rgba(0, 0, 0, 0.12)',
+                    }
+                },
+            }
         }
+    </script>
 
-        .notification-list {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            margin-bottom: 10px;
-            display: flex;
-            flex-direction: column;
-            background: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .notification-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-
-        .notification-info span {
-            flex: 1;
-            text-align: center;
-        }
-
-        button {
-            display: inline-block;
-            margin-right: 10px;
-            padding: 10px 15px;
-            color: #fff;
-            background-color: #218838;
-            border: none;
-            border-radius: 4px;
-            text-decoration: none;
-            text-align: center;
-        }
-
-        button[disabled] {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        button:hover:not([disabled]) {
-            background-color: #218838;
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .transition-custom {
+                transition: all 0.3s ease;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .status-badge {
+                @apply px-3 py-1 rounded-full text-xs font-medium;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-4 py-2 rounded-lg text-sm transition-custom hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50;
+            }
+            .btn-disabled {
+                @apply bg-gray-300 text-gray-500 cursor-not-allowed;
+            }
+            .card-hover {
+                @apply hover:shadow-card-hover transition-custom;
+            }
+            .notification-unread {
+                @apply bg-primary/5 border-l-4 border-primary;
+            }
         }
     </style>
 </head>
+<body class="font-inter bg-light text-dark min-h-screen flex flex-col">
+    <!-- 页面标题栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-40 py-4 px-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold text-dark">
+                    <i class="fa fa-bell text-primary mr-2"></i>消息通知
+                </h1>
+                <p class="text-info text-sm mt-1">查看您的系统通知和消息</p>
+            </div>
+        </div>
+    </header>
 
-<body>
-    <div class="notification-list">
-        <h2>消息通知</h2>
-        <ul>
-            {% for notification in notifications %}
-            <li>
-                <span class="notification-info">
-                    <span>{{ notification.message }}</span>
-                    <span>状态: {{ '未读' if not notification.is_read else '已读' }}</span>
-                    <button onclick="markAsReadAndRedirect({{ notification.id }}, '{{ notification.link }}')" {% if notification.is_read %}disabled{% endif %}>查看</button>
-                </span>
-            </li>
-            {% endfor %}
-        </ul>
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        <!-- 状态标签 -->
+        <div class="mb-6 flex flex-wrap gap-2">
+            <a href="#all" class="px-4 py-2 bg-primary/10 text-primary rounded-lg text-sm font-medium transition-custom hover:bg-primary/20">
+                <i class="fa fa-list mr-1"></i> 全部消息
+            </a>
+        </div>
+
+        <!-- 消息列表 -->
+        <section id="all" class="mb-8">
+            <div class="bg-white rounded-xl shadow-card overflow-hidden">
+                <div class="bg-primary/10 px-6 py-4">
+                    <h2 class="text-lg font-semibold text-primary flex items-center">
+                        <i class="fa fa-bell mr-2"></i>消息通知
+                    </h2>
+                </div>
+                <div class="p-0">
+                    {% if notifications %}
+                    <ul class="divide-y divide-gray-100">
+                        {% for notification in notifications %}
+                        <li class="px-6 py-4 hover:bg-gray-50 transition-custom {{ 'notification-unread' if not notification.is_read }}">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between">
+                                <div class="mb-3 md:mb-0">
+                                    <p class="font-medium text-dark">
+                                        <i class="fa fa-comment text-primary mr-1"></i>
+                                        {{ notification.message }}
+                                    </p>
+                                    <div class="mt-2">
+                                        {% if not notification.is_read %}
+                                        <span class="status-badge bg-primary/10 text-primary">
+                                            <i class="fa fa-circle mr-1"></i>未读
+                                        </span>
+                                        {% else %}
+                                        <span class="status-badge bg-gray-100 text-gray-500">
+                                            <i class="fa fa-check mr-1"></i>已读
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap gap-2 mt-3 md:mt-0">
+                                    <button onclick="markAsReadAndRedirect({{ notification.id }}, '{{ notification.link }}')"
+                                            class="btn-primary"
+                                            {% if notification.is_read %}disabled{% endif %}>
+                                        <i class="fa fa-eye mr-1"></i>查看
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="px-6 py-8 text-center text-gray-500">
+                        <i class="fa fa-inbox text-4xl mb-3 opacity-30"></i>
+                        <p>暂无消息通知</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 返回首页按钮 -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <a href="{{ url_for('home') }}" class="btn-primary flex items-center shadow-lg">
+            <i class="fa fa-home mr-2"></i> 返回首页
+        </a>
     </div>
-
-    <a href="{{ url_for('home') }}" class="layui-bg-green">返回首页</a>
 
     <script>
         function markAsReadAndRedirect(notificationId, link) {
@@ -125,5 +175,4 @@
         }
     </script>
 </body>
-
 </html>

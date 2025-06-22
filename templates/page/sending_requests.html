@@ -1,129 +1,281 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <!-- 引入 Bootstrap CSS 实现弹窗 -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
+    <title>我的申请 - 驴友辅助系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-        h2 {
-            margin-bottom: 20px;
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E9FFF',
+                        secondary: '#36CFC9',
+                        accent: '#FF7D00',
+                        dark: '#333333',
+                        light: '#F5F7FA',
+                        status: {
+                            approved: '#00B42A',
+                            pending: '#86909C',
+                            denied: '#F53F3F'
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 4px 12px rgba(0, 0, 0, 0.08)',
+                        'card-hover': '0 8px 20px rgba(0, 0, 0, 0.12)',
+                    }
+                },
+            }
         }
+    </script>
 
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .team-info {
-            flex-grow: 1;
-        }
-
-        form {
-            margin-left: 10px;
-        }
-
-        a,
-        button {
-            color:#218838;
-            display: inline-block;
-            margin-right: 10px;
-        }
-
-        button:disabled {
-            background-color: grey;
-            cursor: not-allowed;
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .transition-custom {
+                transition: all 0.3s ease;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .status-badge {
+                @apply px-3 py-1 rounded-full text-xs font-medium text-white;
+            }
+            .input-focus {
+                @apply focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom;
+            }
+            .btn-primary {
+                @apply bg-primary text-white px-4 py-2 rounded-lg text-sm transition-custom hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50;
+            }
+            .btn-secondary {
+                @apply bg-white text-dark border border-gray-300 px-4 py-2 rounded-lg text-sm transition-custom hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300;
+            }
+            .nav-active {
+                @apply bg-primary/10 text-primary !important;
+            }
         }
     </style>
 </head>
-
-<body>
-    <!-- 弹窗模态框 -->
-    <div class="modal fade" id="flashModal" tabindex="-1" role="dialog" aria-labelledby="flashModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <ul class="flashes">
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                        {% for category, message in messages %}
-                        <li class="{{ category }}">{{ message }}</li>
-                        {% endfor %}
-                        {% endif %}
-                        {% endwith %}
-                    </ul>
-                </div>
+<body class="font-inter bg-light text-dark min-h-screen flex flex-col">
+    <!-- 页面标题栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-40 py-4 px-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold text-dark">
+                    <i class="fa fa-list-alt text-primary mr-2"></i>发送的申请
+                </h1>
+                <p class="text-info text-sm mt-1">查看和管理您发送的队伍申请</p>
             </div>
         </div>
-    </div>
+    </header>
 
-    <h2>已发送申请</h2>
-    <ul>
-        {% for team in approved_teams %}
-        <li>
-            <span class="team-info">
-                <span>队伍目的地: {{ team.destination }}</span>
-                <span>队伍管理员: {{ team.team_admin.username }}</span>
-                <span class="status-label">状态：申请已被接受</span>
-            </span>
-            <a href="{{ url_for('view_teamfriend', team_id=team.id) }}">查看队员信息</a> <!-- 新添加的查看队伍信息按钮 -->
-            <a href="{{ url_for('view_team', team_id=team.id) }}">查看队伍信息</a>
-        </li>
-        {% endfor %}
-        {% for team in pending_teams %}
-        <li>
-            <span class="team-info">
-                <span>队伍目的地: {{ team.destination }}</span>
-                <span>队伍管理员: {{ team.team_admin.username }}</span>
-                <span class="status-label">状态：申请未被处理</span>
-            </span>
-            <a href="{{ url_for('view_team', team_id=team.id) }}" >查看队伍信息</a> <!-- 新添加的查看队伍信息按钮 -->
-        </li>
-        {% endfor %}
-        {% for team in deny_teams %}
-        <li>
-            <span class="team-info">
-                <span>队伍目的地: {{ team.destination }}</span>
-                <span>队伍管理员: {{ team.team_admin.username }}</span>
-                <span class="status-label">状态：申请已被拒绝</span>
-            </span>
-            <a href="{{ url_for('view_team', team_id=team.id) }}">查看队伍信息</a> <!-- 新添加的查看队伍信息按钮 -->
-        </li>
-        {% endfor %}
-    </ul>
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        <!-- 状态标签 -->
+        <div class="mb-6 flex flex-wrap gap-2" id="status-tabs">
+            <button data-target="approved" class="px-4 py-2 bg-primary/10 text-primary rounded-lg text-sm font-medium transition-custom hover:bg-primary/20 nav-active">
+                <i class="fa fa-check-circle mr-1"></i> 已接受
+            </button>
+            <button data-target="pending" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium transition-custom hover:bg-gray-200">
+                <i class="fa fa-clock-o mr-1"></i> 待处理
+            </button>
+            <button data-target="denied" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium transition-custom hover:bg-gray-200">
+                <i class="fa fa-times-circle mr-1"></i> 已拒绝
+            </button>
+        </div>
+
+        <!-- 已接受的申请 -->
+        <section id="approved" class="mb-8">
+            <div class="bg-white rounded-xl shadow-card overflow-hidden">
+                <div class="bg-primary/10 px-6 py-4">
+                    <h2 class="text-lg font-semibold text-primary flex items-center">
+                        <i class="fa fa-check-circle mr-2"></i>已接受的申请
+                    </h2>
+                </div>
+                <div class="p-0">
+                    {% if approved_teams %}
+                    <ul class="divide-y divide-gray-100">
+                        {% for team in approved_teams %}
+                        <li class="px-6 py-4 hover:bg-gray-50 transition-custom">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between">
+                                <div class="mb-3 md:mb-0">
+                                    <h3 class="font-medium text-dark">
+                                        <i class="fa fa-map-marker text-primary mr-1"></i>
+                                        队伍目的地: {{ team.destination }}
+                                    </h3>
+                                    <p class="text-sm text-gray-600 mt-1">
+                                        <i class="fa fa-user text-primary mr-1"></i>
+                                        队伍管理员: {{ team.team_admin.username }}
+                                    </p>
+                                    <span class="inline-block mt-2 px-3 py-1 bg-status-approved/10 text-status-approved rounded-full text-xs font-medium">
+                                        <i class="fa fa-check-circle mr-1"></i>状态：申请已被接受
+                                    </span>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <a href="{{ url_for('view_teamfriend', team_id=team.id) }}" class="btn-secondary">
+                                        <i class="fa fa-users mr-1"></i>查看队员信息
+                                    </a>
+                                    <a href="{{ url_for('view_team', team_id=team.id) }}" class="btn-secondary">
+                                        <i class="fa fa-info-circle mr-1"></i>查看队伍信息
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="px-6 py-8 text-center text-gray-500">
+                        <i class="fa fa-inbox text-4xl mb-3 opacity-30"></i>
+                        <p>暂无已接受的申请</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- 待处理的申请 -->
+        <section id="pending" class="mb-8">
+            <div class="bg-white rounded-xl shadow-card overflow-hidden">
+                <div class="bg-gray-100 px-6 py-4">
+                    <h2 class="text-lg font-semibold text-gray-700 flex items-center">
+                        <i class="fa fa-clock-o mr-2"></i>待处理的申请
+                    </h2>
+                </div>
+                <div class="p-0">
+                    {% if pending_teams %}
+                    <ul class="divide-y divide-gray-100">
+                        {% for team in pending_teams %}
+                        <li class="px-6 py-4 hover:bg-gray-50 transition-custom">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between">
+                                <div class="mb-3 md:mb-0">
+                                    <h3 class="font-medium text-dark">
+                                        <i class="fa fa-map-marker text-primary mr-1"></i>
+                                        队伍目的地: {{ team.destination }}
+                                    </h3>
+                                    <p class="text-sm text-gray-600 mt-1">
+                                        <i class="fa fa-user text-primary mr-1"></i>
+                                        队伍管理员: {{ team.team_admin.username }}
+                                    </p>
+                                    <span class="inline-block mt-2 px-3 py-1 bg-status-pending/10 text-status-pending rounded-full text-xs font-medium">
+                                        <i class="fa fa-clock-o mr-1"></i>状态：申请未被处理
+                                    </span>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <a href="{{ url_for('view_team', team_id=team.id) }}" class="btn-secondary">
+                                        <i class="fa fa-info-circle mr-1"></i>查看队伍信息
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="px-6 py-8 text-center text-gray-500">
+                        <i class="fa fa-inbox text-4xl mb-3 opacity-30"></i>
+                        <p>暂无待处理的申请</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- 已拒绝的申请 -->
+        <section id="denied" class="mb-8">
+            <div class="bg-white rounded-xl shadow-card overflow-hidden">
+                <div class="bg-gray-100 px-6 py-4">
+                    <h2 class="text-lg font-semibold text-gray-700 flex items-center">
+                        <i class="fa fa-times-circle mr-2"></i>已拒绝的申请
+                    </h2>
+                </div>
+                <div class="p-0">
+                    {% if deny_teams %}
+                    <ul class="divide-y divide-gray-100">
+                        {% for team in deny_teams %}
+                        <li class="px-6 py-4 hover:bg-gray-50 transition-custom">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between">
+                                <div class="mb-3 md:mb-0">
+                                    <h3 class="font-medium text-dark">
+                                        <i class="fa fa-map-marker text-primary mr-1"></i>
+                                        队伍目的地: {{ team.destination }}
+                                    </h3>
+                                    <p class="text-sm text-gray-600 mt-1">
+                                        <i class="fa fa-user text-primary mr-1"></i>
+                                        队伍管理员: {{ team.team_admin.username }}
+                                    </p>
+                                    <span class="inline-block mt-2 px-3 py-1 bg-status-denied/10 text-status-denied rounded-full text-xs font-medium">
+                                        <i class="fa fa-times-circle mr-1"></i>状态：申请已被拒绝
+                                    </span>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <a href="{{ url_for('view_team', team_id=team.id) }}" class="btn-secondary">
+                                        <i class="fa fa-info-circle mr-1"></i>查看队伍信息
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="px-6 py-8 text-center text-gray-500">
+                        <i class="fa fa-inbox text-4xl mb-3 opacity-30"></i>
+                        <p>暂无已拒绝的申请</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </main>
 
     <!-- 引入 Bootstrap JS 和 jQuery -->
     <script src="{{ url_for('static', filename='js/jquery-3.5.1.slim.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
-    <script src=" {{ url_for('static', filename='js/bootstrap.min.js' ) }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script>
-        $(document).ready(function () {
-            if ($('.flashes li').length > 0) {
-                $('#flashModal').modal('show');
+        document.addEventListener('DOMContentLoaded', function() {
+            // 状态标签点击事件
+            const tabs = document.querySelectorAll('#status-tabs button');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 更新标签样式
+                    tabs.forEach(t => {
+                        t.classList.remove('nav-active');
+                    });
+                    this.classList.add('nav-active');
+
+                    // 获取目标区域
+                    const target = this.getAttribute('data-target');
+                    const targetElement = document.getElementById(target);
+
+                    // 平滑滚动到目标区域
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // 页面加载时检查URL中的哈希值
+            if (window.location.hash) {
+                const hash = window.location.hash.substring(1);
+                const targetTab = document.querySelector(`[data-target="${hash}"]`);
+
+                if (targetTab) {
+                    // 触发标签点击事件
+                    targetTab.click();
+                }
             }
         });
     </script>
 </body>
-
 </html>
